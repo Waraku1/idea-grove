@@ -1,0 +1,13 @@
+{
+  "name": "idea-grove",
+  "account_id": "REPLACE_WITH_FREE_ACCOUNT_ID",
+  "database_id": "00000000-0000-4000-8000-000000000000",
+  "database_name": "idea-grove-production",
+  "vars": {
+    "PUBLIC_ORIGIN": "https://idea-grove.REPLACE_WITH_YOUR_SUBDOMAIN.workers.dev",
+    "GITHUB_CLIENT_ID": "REPLACE_WITH_OAUTH_APP_CLIENT_ID",
+    "OWNER_GITHUB_ID": "153403020",
+    "APP_READ_ONLY": "false",
+    "APP_VERSION": "0.5"
+  }
+}

@@ -1,0 +1,3 @@
+import { sqliteTable,text,integer,primaryKey,index } from 'drizzle-orm/sqlite-core';
+export const worlds=sqliteTable('worlds',{ownerId:text('owner_id').primaryKey(),dataJson:text('data_json').notNull(),revision:integer('revision').notNull(),updatedAt:text('updated_at').notNull()});
+export const worldEvents=sqliteTable('world_events',{ownerId:text('owner_id').notNull(),revision:integer('revision').notNull(),eventJson:text('event_json').notNull(),occurredAt:text('occurred_at').notNull(),label:text('label').notNull()},t=>[primaryKey({columns:[t.ownerId,t.revision]}),index('world_events_owner_time').on(t.ownerId,t.occurredAt)]);
