@@ -3,7 +3,7 @@ const id=z.string().min(1).max(100).regex(/^[a-zA-Z0-9_-]+$/),color=z.string().r
 export const PALETTE=['#799c83','#739db4','#b795ba','#cfb774','#c68770','#89aeb0','#b7a589','#8c91b5','#bd8e9d','#94a875'];
 export const objectSchema=z.object({id,kind:z.enum(['memo','book']),title:z.string().max(200),content:z.string().max(100000),tags:z.array(id).max(100),archived:z.boolean(),createdAt:z.string().datetime(),updatedAt:z.string().datetime()});
 export const tagSchema=z.object({id,name:z.string().trim().min(1).max(60),color,important:z.boolean(),region:z.number().int().min(0).max(9).nullable()});
-export const roomSchema=z.object({id,name:z.string().trim().min(1).max(80),kind:z.enum(['mansion','house']),slots:z.array(z.number().int().min(0).max(11)).max(12),x:z.number().finite().min(-80).max(80),z:z.number().finite().min(-80).max(80),color});
+export const roomSchema=z.object({id,name:z.string().trim().min(1).max(80),kind:z.enum(['mansion','house']),x:z.number().finite().min(-80).max(80),z:z.number().finite().min(-80).max(80),color});
 export const furnitureSchema=z.object({id,roomId:id,kind:z.enum(['shelf','wall','desk','box']),name:z.string().trim().min(1).max(80),x:z.number().finite().min(-4).max(4),z:z.number().finite().min(-4).max(4)});
 export const placementPositionSchema=z.object({u:z.number().finite().min(-1).max(1),v:z.number().finite().min(-1).max(1)});
 export const placementSchema=z.object({id,objectId:id,furnitureId:id,position:placementPositionSchema.optional()});
