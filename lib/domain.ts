@@ -28,9 +28,8 @@ function check(ok:unknown,message:string):asserts ok {if(!ok)throw new Error(mes
 export function validateWorld(input:unknown):World {
  const w=worldSchema.parse(input);
  for(const list of [w.objects,w.tags,w.rooms,w.furniture,w.placements])check(new Set(list.map(x=>x.id)).size===list.length,'Duplicate IDs are not allowed.');
- const occupied=w.rooms.filter(r=>r.kind==='mansion').flatMap(r=>r.slots);check(occupied.length===12&&new Set(occupied).size===12,'The mansion must retain all twelve fixed slots.');
- check(w.rooms.every(r=>r.kind==='house'?r.slots.length===0&&Math.hypot(r.x,r.z)>=18:r.slots.length>0),'Place houses outside the mansion.');
- for(const r of w.rooms.filter(r=>r.kind==='mansion')){const s=new Set(r.slots);check(r.slots.length===12||r.slots.filter(v=>!s.has((v+11)%12)).length===1,'Only adjacent slots can be merged.');}
+ check(w.rooms.every(r=>r.kind==='house'||r.kind==='mansion'),'Invalid space type.');
+ check(w.rooms.every(r=>r.kind==='house'?Math.hypot(r.x,r.z)>=18:true),'Place houses outside the central garden.');
  const important=w.tags.filter(t=>t.important);check(important.length<=10&&important.every(t=>t.region!==null)&&new Set(important.map(t=>t.region)).size===important.length,'Up to ten important tags, each with its own canopy region.');
  check(w.tags.every(t=>t.important||t.region===null),'Regular tags do not have canopy regions.');
  check(new Set(w.tags.map(t=>t.name.toLocaleLowerCase())).size===w.tags.length,'A tag with that name already exists.');
