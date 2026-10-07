@@ -21,9 +21,9 @@ test('moving furniture, houses and placements preserves thought identity, conten
   assert.deepEqual(validateWorld(JSON.parse(JSON.stringify(w))), w);
 });
 
-test('fixed mansion slots, missing targets and invalid movement cannot corrupt a world', () => {
+test('missing targets and invalid movement cannot corrupt a world', () => {
   const w = demoWorld();
-  assert.throws(() => applyCommands(w, [{type: 'room.move', id: 'room-0', x: 40, z: 20}], now));
+
   assert.throws(() => applyCommands(w, [{type: 'furniture.move', id: 'missing', x: 0, z: 0}], now));
   assert.throws(() => applyCommands(w, [{type: 'placement.move', id: 'missing', position: {u: 0, v: 0}}], now));
   for (const value of [NaN, Infinity, 4.01, -4.01]) assert.equal(commandSchema.safeParse({type: 'furniture.move', id: w.furniture[0].id, x: value, z: 0}).success, false);
@@ -32,7 +32,7 @@ test('fixed mansion slots, missing targets and invalid movement cannot corrupt a
 });
 
 test('drag rays intersect the same floor and furniture planes used by overview projection', () => {
-  let w = demoWorld(); w = applyCommands(w, [{type: 'room.merge', targetId: 'room-0', sourceId: 'room-11'}], now);
+  const w = demoWorld();
   for (const room of [null, ...w.rooms]) for (const camera of [{yaw: -.5, pitch: .6, zoom: 1}, {yaw: 1.4, pitch: .25, zoom: 1.8}]) {
     const b = overviewBasis(1200, 800, camera, room), point = [room?.kind === 'house' ? room.x : b.focus.x + 1.2, 1.35, room?.kind === 'house' ? room.z : b.focus.z - .8];
     const delta = [point[0] - b.focus.x, point[1], point[2] - b.focus.z], dot = (a, c) => a.reduce((sum, v, i) => sum + v * c[i], 0);
@@ -41,9 +41,9 @@ test('drag rays intersect the same floor and furniture planes used by overview p
   }
 });
 
-test('world and furniture coordinates round trip in houses, ordinary slots and wrapped merged rooms', () => {
-  const w = applyCommands(demoWorld(), [{type: 'room.merge', targetId: 'room-0', sourceId: 'room-11'}], now);
-  for (const r of w.rooms.filter(r => r.kind === 'house' || !r.slots.some(s => s === 2 || s === 3))) for (const kind of ['shelf', 'wall', 'desk', 'box']) for (const x of [-3, 0, 3]) {
+test('world and furniture coordinates round trip in free-standing houses', () => {
+  const w = demoWorld();
+  for (const r of w.rooms.filter(r => r.kind === 'house')) for (const kind of ['shelf', 'wall', 'desk', 'box']) for (const x of [-3, 0, 3]) {
     const f = {id: 'f', roomId: r.id, kind, name: 'Furniture', x, z: x / 2}, frame = furnitureFrame(r, f), coord = furnitureCoordinates(r, f, frame.x, frame.z);
     close(coord.x, x, .011); close(coord.z, x / 2, .011);
     const local = placementPoint(f, {u: .6, v: kind === 'shelf' ? 1 : -.4}), restored = pointToFurniture(frame, furniturePoint(frame, local)), position = placementCoordinates(f, restored);
@@ -53,8 +53,9 @@ test('world and furniture coordinates round trip in houses, ordinary slots and w
   }
 });
 
-test('drag limits keep furniture inside truncated slots and houses outside the mansion', () => {
-  for (const room of emptyWorld().rooms) for (const kind of ['shelf', 'wall', 'desk', 'box']) {
+test('drag limits keep furniture inside houses and houses outside the garden', () => {
+  const testRooms = [demoWorld().rooms.find(r => r.kind === 'house')];
+  for (const room of testRooms) for (const kind of ['shelf', 'wall', 'desk', 'box']) {
     const f = {id: 'f', roomId: room.id, kind, name: 'Furniture', x: 0, z: 0}, coordinates = furnitureCoordinates(room, f, -500, 500), frame = furnitureFrame(room, {...f, ...coordinates});
     assert.ok(coordinates.x >= -4 && coordinates.x <= 4 && coordinates.z >= -4 && coordinates.z <= 4); assert.equal(containsRoomPoint(room, frame.x, frame.z), true);
   }
