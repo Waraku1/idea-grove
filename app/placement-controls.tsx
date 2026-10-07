@@ -3,7 +3,7 @@ import {BookOpen, Move, StickyNote, Trash2} from 'lucide-react';
 import {placementPosition} from '../lib/arrange';
 import type {Furniture, KnowledgeObject, Placement} from '../lib/domain';
 
-export default function PlacementControls({object, placement, furniture, index, readOnly, selected, onOpen, onArrange, onCoordinate}: {object: KnowledgeObject; placement: Placement; furniture: Furniture; index: number; readOnly: boolean; selected: boolean; onOpen: () => void; onArrange: () => void; onCoordinate: (axis: 'u' | 'v', value: number) => void}) {
+export default function PlacementControls({object, placement, furniture, index, readOnly, selected, onOpen, onArrange, onCoordinate}: {object: KnowledgeObject; placement: Placement; furniture: Furniture; index: number; readOnly: boolean; selected: boolean; onOpen: () => void; onArrange: () => void; onDelete: () => void; onCoordinate: (axis: 'u' | 'v', value: number) => void}) {
   const position = placementPosition(furniture, placement, index);
   const update = (axis: 'u' | 'v', value: string) => {const n = Number(value); if (!value.trim() || !Number.isFinite(n) || n < -1 || n > 1 || n === position[axis]) return; onCoordinate(axis, furniture.kind === 'shelf' && axis === 'v' ? Math.round(n) : n);};
   return <div className={selected ? 'placed-item moving' : 'placed-item'}>
