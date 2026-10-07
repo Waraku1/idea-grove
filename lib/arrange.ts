@@ -32,7 +32,7 @@ export function intersectPlane(ray: ReturnType<typeof overviewRay>, point: Point
 export function furnitureCoordinates(room: Room, f: Furniture, x: number, z: number) {
   const frame = furnitureFrame(room, f);
   if (room.kind === 'house') return {x: round(clamp((x - room.x) / (STRUCTURE.houseHalfWidth - frame.halfX - .14) * 4, -4, 4)), z: round(clamp((z - room.z) / (STRUCTURE.houseHalfDepth - frame.halfZ - .14) * 4, -4, 4))};
-  const slots = new Set(room.slots), start = (room.slots.find(s => !slots.has((s + 11) % 12)) ?? 0) * Math.PI / 6, span = room.slots.length * Math.PI / 6;
+  const sections = room.slots?.length ? room.slots : Array.from({length:12},(_,i)=>i), slots = new Set(sections), start = (sections.find(s => !slots.has((s + 11) % 12)) ?? 0) * Math.PI / 6, span = sections.length * Math.PI / 6;
   const margin = Math.atan2(frame.halfX + .22, STRUCTURE.innerRadius + frame.halfZ), reference = start + margin + (f.x + 4) / 8 * (span - 2 * margin);
   let angle = Math.atan2(z, x); angle += Math.round((reference - angle) / (Math.PI * 2)) * Math.PI * 2;
   const outer = STRUCTURE.outerRadius * Math.cos(Math.PI / 12) - frame.halfZ - .18, inner = STRUCTURE.innerRadius + frame.halfZ + .18;
