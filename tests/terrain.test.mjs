@@ -19,7 +19,7 @@ test('cliffs track the same ground radius when an outer house is moved',()=>{
  const w=emptyWorld();assert.equal(groundRadius(w),28);const moved={...w,rooms:[...w.rooms,{id:'h',kind:'house',name:'H',slots:[],x:40,z:30,color:'#aabbcc'}]};assert.equal(buildTerrain(moved).radius,54);
 });
 test('the lower cliff edge stays below the viewport at every supported overview angle and zoom',()=>{
- const w=emptyWorld();w.rooms.push({id:'outer',kind:'house',name:'Outer house',slots:[],x:80,z:80,color:'#aabbcc'});
+ const w=emptyWorld();w.rooms.push({id:'outer',kind:'house',name:'Outer house',x:80,z:80,color:'#aabbcc'});
  const bottom=buildTerrain(w).faces.slice(-TERRAIN_SEGMENTS).flatMap(f=>f.points.slice(2));
  for(const [width,height] of [[320,2400],[390,844],[1200,800],[3840,2160],[3440,440]])
  for(const pitch of [.25,.55,1.1])for(const zoom of [.55,1,2])for(const yaw of [0,.45,1.9,Math.PI]){
