@@ -23,7 +23,7 @@ export const commandSchema=z.discriminatedUnion('type',[
  z.object({type:z.literal('placement.move'),id,position:placementPositionSchema}),
  z.object({type:z.literal('world.rename'),name:z.string().trim().min(1).max(80)}),z.object({type:z.literal('world.restore'),world:worldSchema})]);
 export type Command=z.infer<typeof commandSchema>;
-export function emptyWorld():World {return {schemaVersion:1,name:'私の思考の庭',objects:[],tags:[],rooms:Array.from({length:12},(_,i)=>({id:`room-${i}`,name:`空き区画 ${String(i+1).padStart(2,'0')}`,kind:'mansion' as const,slots:[i],x:0,z:0,color:'#ded9cb'})),furniture:[],placements:[],matureCount:0};}
+export function emptyWorld():World {return {schemaVersion:1,name:'私の思考の庭',objects:[],tags:[],rooms:[],furniture:[],placements:[],matureCount:0};}
 function check(ok:unknown,message:string):asserts ok {if(!ok)throw new Error(message);}
 export function validateWorld(input:unknown):World {
  const w=worldSchema.parse(input);
