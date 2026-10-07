@@ -130,7 +130,8 @@ export function furnitureFrame(room: Room, furniture: Furniture): FurnitureFrame
   }));
   // The south passage truncates two slots. Fit the same furniture into their real footprint.
   const slot = ((Math.floor(angle / (Math.PI / 6)) % 12) + 12) % 12;
-  const poly = roomFloors(room)[Math.max(0, room.slots.indexOf(slot))];
+  const sections = room.slots?.length ? room.slots : Array.from({length:12},(_,i)=>i);
+  const poly = roomFloors(room)[Math.max(0, sections.indexOf(slot))];
   const target: Point2 = [poly.reduce((n, p) => n + p[0], 0) / poly.length, poly.reduce((n, p) => n + p[1], 0) / poly.length];
   for (let i = 0; i < 40 && !cornersFit(); i++) {frame.x += (target[0] - frame.x) * .15; frame.z += (target[1] - frame.z) * .15;}
   return frame;
