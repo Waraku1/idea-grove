@@ -1,5 +1,5 @@
 'use client';
-import {BookOpen, Move, StickyNote} from 'lucide-react';
+import {BookOpen, Move, StickyNote, Trash2} from 'lucide-react';
 import {placementPosition} from '../lib/arrange';
 import type {Furniture, KnowledgeObject, Placement} from '../lib/domain';
 
