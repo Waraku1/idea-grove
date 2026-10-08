@@ -40,7 +40,7 @@ export function roomFloors(room: Room): Point2[][] {
     const {x, z} = room, hx = STRUCTURE.houseHalfWidth, hz = STRUCTURE.houseHalfDepth;
     return [[[x - hx, z - hz], [x + hx, z - hz], [x + hx, z + hz], [x - hx, z + hz]]];
   }
-  const sections = room.slots?.length ? room.slots : Array.from({length:12},(_,i)=>i);
+  const sections = Array.from({length:12},(_,i)=>i);
   return sections.map(slot => {
     const a = slot * Math.PI / 6, b = (slot + 1) * Math.PI / 6;
     const poly = [polar(STRUCTURE.innerRadius, a), polar(STRUCTURE.outerRadius, a), polar(STRUCTURE.outerRadius, b), polar(STRUCTURE.innerRadius, b)];
