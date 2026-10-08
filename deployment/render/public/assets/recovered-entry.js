@@ -22,11 +22,18 @@ window.addEventListener("error", event => {
 });
 window.addEventListener("unhandledrejection", event => showFailure(event.reason));
 
-(async function start() {
+(function withTimeout(promise, label, ms = 15000) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => setTimeout(() => reject(new Error(label + " timed out after " + ms + " ms.")), ms))
+  ]);
+}
+
+async function start() {
   try {
     setStatus("Starting Idea Grove…");
     setStatus("Loading application runtime…");
-    const runtimeModule = await import("./framework-D_rUT4EX.js");
+    const runtimeModule = await withTimeout(import("./framework-D_rUT4EX.js"), "Loading the React runtime");
     const { i: reactFactory, n: domFactory } = runtimeModule;
     const React = reactFactory();
     const ReactDOM = domFactory();
@@ -35,12 +42,12 @@ window.addEventListener("unhandledrejection", event => showFailure(event.reason)
     }
 
     setStatus("Loading your grove…");
-    const groveModule = await import("./grove-BWXu0UId.js");
+    const groveModule = await withTimeout(import("./grove-BWXu0UId.js"), "Loading the Grove application");
     const Grove = groveModule.default;
     if (!Grove) throw new Error("The recovered Grove module did not provide a default export.");
 
     setStatus("Checking sign-in session…");
-    const sessionResponse = await fetch("/session", { credentials: "same-origin", cache: "no-store" });
+    const sessionResponse = await withTimeout(fetch("/session", { credentials: "same-origin", cache: "no-store" }), "Checking the sign-in session");
     const session = sessionResponse.ok
       ? await sessionResponse.json()
       : { signedIn: false, userKey: "guest" };
