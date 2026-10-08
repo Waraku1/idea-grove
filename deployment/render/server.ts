@@ -44,7 +44,8 @@ async function asset(request: Request, directory: string, relative: string, immu
         } catch {}
       }
     }
-    const data = await readFile(file), headers = new Headers({'Content-Type':types[extname(relative)],'Cache-Control':immutable ? 'public, max-age=31536000, immutable' : 'private, no-store','Vary':'Accept-Encoding','Content-Length':String(data.length)});
+    const cacheImmutable = immutable && relative !== 'assets/recovered-entry.js';
+    const data = await readFile(file), headers = new Headers({'Content-Type':types[extname(relative)],'Cache-Control':cacheImmutable ? 'public, max-age=31536000, immutable' : 'private, no-store','Vary':'Accept-Encoding','Content-Length':String(data.length)});
     if (encoding) headers.set('Content-Encoding', encoding);
     return new Response(request.method === 'HEAD' ? null : new Uint8Array(data).buffer, {headers});
   } catch {return missing();}
