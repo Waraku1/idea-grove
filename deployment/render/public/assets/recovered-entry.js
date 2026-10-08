@@ -22,7 +22,7 @@ window.addEventListener("error", event => {
 });
 window.addEventListener("unhandledrejection", event => showFailure(event.reason));
 
-(function withTimeout(promise, label, ms = 15000) {
+function withTimeout(promise, label, ms = 15000) {
   return Promise.race([
     promise,
     new Promise((_, reject) => setTimeout(() => reject(new Error(label + " timed out after " + ms + " ms.")), ms))
