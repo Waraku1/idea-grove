@@ -72,7 +72,7 @@ export function containsRoomPoint(room: Room, x: number, z: number, margin = 0) 
 }
 
 function roomArc(room: Room) {
-  const sections = room.slots?.length ? room.slots : Array.from({length:12},(_,i)=>i);
+  const sections = Array.from({length:12},(_,i)=>i);
   const slots = new Set(sections), start = sections.find(s => !slots.has((s + 11) % 12)) ?? 0;
   return {start: start * Math.PI / 6, span: sections.length * Math.PI / 6};
 }
