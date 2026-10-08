@@ -30,11 +30,10 @@ async function asset(request: Request, directory: string, relative: string, immu
   try {
     const root = await realpath(directory), plain = await realpath(resolve(root, relative));
     if (!plain.startsWith(root + sep) || plain !== resolve(root, relative)) return missing();
+    // Do not content-encode JavaScript modules on Render. Native dynamic import()
+    // is sensitive to intermediary/proxy encoding errors; serving the module bytes
+    // directly keeps the bootstrap deterministic.
     let file = plain, encoding = '';
-    const accept = request.headers.get('accept-encoding') ?? '';
-    for (const [name, suffix] of [['br', '.br'], ['gzip', '.gz']]) if (new RegExp('(?:^|,)\\s*' + name + '(?:\\s*,|\\s*$)').test(accept)) {
-      try {const compressed = await realpath(plain + suffix); if (compressed === plain + suffix) {file = compressed; encoding = name; break;}} catch {}
-    }
     const data = await readFile(file), headers = new Headers({'Content-Type':types[extname(relative)],'Cache-Control':immutable ? 'public, max-age=31536000, immutable' : 'private, no-store','Vary':'Accept-Encoding','Content-Length':String(data.length)});
     if (encoding) headers.set('Content-Encoding', encoding);
     return new Response(request.method === 'HEAD' ? null : new Uint8Array(data).buffer, {headers});
