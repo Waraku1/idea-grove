@@ -95,8 +95,9 @@ test('free-standing rooms retain independent collision boundaries', () => {
   assert.notEqual(a.id, b.id);
   assert.equal(containsRoomPoint(a, a.x, a.z), true);
   assert.equal(containsRoomPoint(b, b.x, b.z), true);
-  assert.equal(canStand(a.x, a.z, w, a), true);
-  assert.equal(canStand(b.x, b.z, w, b), true);
+  const aSpawn = safeSpawn(w, a), bSpawn = safeSpawn(w, b);
+  assert.equal(canStand(aSpawn.x, aSpawn.z, w, a), true);
+  assert.equal(canStand(bSpawn.x, bSpawn.z, w, b), true);
 });
 
 test('perspective, billboards and lines share the wider 82 degree field of view', () => {
