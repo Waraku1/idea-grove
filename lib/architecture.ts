@@ -209,7 +209,7 @@ export function buildArchitecture(w: World): Architecture {
         roof([[x - 2.35, y, z + side * 2], [x + 2.35, y, z + side * 2], [x, 4.4, z + side * 2]], mix(room.color, side < 0 ? .78 : 1));
         roof([[x + side * 2.35, y, z - 2], [x + side * 2.35, y, z + 2], [x, 4.4, z + 2], [x, 4.4, z - 2]], mix(room.color, side < 0 ? .92 : 1.12));
       }
-    } else for (const slot of (room.slots?.length ? room.slots : Array.from({length:12},(_,i)=>i))) {
+    } else for (const slot of Array.from({length:12},(_,i)=>i)) {
       const a = slot * Math.PI / 6, b = (slot + 1) * Math.PI / 6;
       const p = (r: number, angle: number, y: number): Point3 => {const v = polar(r, angle); return [v[0], y, v[1]];};
       roof([p(7.6, a, 2.6), p(7.6, b, 2.6), p(10.1, b, 3.75), p(10.1, a, 3.75)], mix(room.color, .92));
