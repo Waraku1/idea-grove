@@ -93,6 +93,7 @@ test('static delivery supports compression and prevents traversal, source exposu
  for(const path of ['/deployment/auth.ts','/secret.txt','/assets/%2e%2e%2fsecret.txt','/assets/escape.js','/assets/private.js'])assert.equal((await handleRenderRequest(req(path),env,root)).status,404);
  for(const path of ['/','/privacy','/terms']){const r=await handleRenderRequest(req(path),env,root);assert.equal(r.status,200);assert.equal(r.headers.get('cache-control'),'private, no-store');}
  assert.equal((await handleRenderRequest(req('/assets/app.js',{method:'HEAD'}),env,root)).body,null);
+ const bootstrap=await handleRenderRequest(req('/assets/recovered-entry.js'),env,root);assert.equal(bootstrap.status,200);assert.equal(bootstrap.headers.get('cache-control'),'private, no-store');
 });
 test('PostgreSQL unavailability never leaks connection details into API responses',async()=>{
  const broken=createNeonDatabase('postgresql://test:test@ep-test.ap-southeast-1.aws.neon.tech/neondb?sslmode=require',async()=>{throw new Error('DATABASE_URL and private upstream details');});
