@@ -1,0 +1,28 @@
+# Deploy only after verifying Hobby/Free and NO payment method in the workspace.
+# No Render database or persistent disk: data is stored in a separate Neon Free project.
+services:
+  - type: web
+    name: idea-grove
+    runtime: node
+    plan: free
+    region: singapore
+    numInstances: 1
+    autoDeployTrigger: "off"
+    buildCommand: corepack enable && pnpm install --frozen-lockfile --prod=false && pnpm test && pnpm typecheck && pnpm build:render
+    startCommand: pnpm start:render
+    healthCheckPath: /healthz
+    envVars:
+      - key: NODE_VERSION
+        value: 22.18.0
+      - key: DATABASE_URL
+        sync: false
+      - key: GITHUB_CLIENT_ID
+        sync: false
+      - key: GITHUB_CLIENT_SECRET
+        sync: false
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: OWNER_GITHUB_ID
+        value: "153403020"
+      - key: APP_READ_ONLY
+        value: "true"
