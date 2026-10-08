@@ -34,10 +34,10 @@ async function asset(request: Request, directory: string, relative: string, immu
     // remains compressed, while these two large modules are loaded by native dynamic
     // import() during the recovery bootstrap.
     let file = plain, encoding = '';
-    const runtimeModule = /(?:^|\\/)assets\\/(?:framework-D_rUT4EX|grove-BWXu0UId)\\.js$/.test('/' + relative);
+    const runtimeModule = relative === 'assets/framework-D_rUT4EX.js' || relative === 'assets/grove-BWXu0UId.js';
     if (!runtimeModule) {
       const accept = request.headers.get('accept-encoding') ?? '';
-      for (const [name, suffix] of [['br', '.br'], ['gzip', '.gz']]) if (new RegExp('(?:^|,)\\\\s*' + name + '(?:\\\\s*,|\\\\s*$)').test(accept)) {
+      for (const [name, suffix] of [['br', '.br'], ['gzip', '.gz']]) if (new RegExp('(?:^|,)\\s*' + name + '(?:\\s*,|\\s*$)').test(accept)) {
         try {
           const compressed = await realpath(plain + suffix);
           if (compressed === plain + suffix) {file = compressed; encoding = name; break;}
