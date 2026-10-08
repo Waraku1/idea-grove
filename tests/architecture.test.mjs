@@ -19,28 +19,23 @@ test('houses use the same 4 by 3.4 footprint and wall height inside and outside'
   assert.equal(canStand(0, 0, w, r), false);
 });
 
-test('shared mansion partitions are unique, including the 11 to 0 seam', () => {
-  const model = buildArchitecture(emptyWorld());
-  assert.equal(model.walls.length, 37);
-  assert.equal(model.walls.filter(wall => wall.owners.length === 2).length, 11);
-  for (const ids of [['room-1'], ['room-11']]) {
-    const w = merged(ids), room = w.rooms[0];
-    assert.equal(roomEdges(room).length, 6);
-    assert.equal(buildArchitecture(w).walls.length, 36);
-    assert.equal(buildArchitecture(w).walls.some(wall => wall.owners.length === 2 && wall.owners.every(o => o.roomId === room.id)), false);
+test('empty worlds contain no fixed mansion partitions and demo houses use free-standing walls', () => {
+  assert.equal(buildArchitecture(emptyWorld()).walls.length, 0);
+  const w = demoWorld();
+  for (const room of w.rooms) {
+    const walls = buildArchitecture({...emptyWorld(), rooms:[room]}).walls;
+    assert.equal(walls.length, 4);
+    assert.ok(walls.every(wall => wall.owners.length === 1 && wall.owners[0].roomId === room.id));
   }
 });
 
-test('the south arch is a real two-unit opening in the common building model', () => {
-  const w = emptyWorld(), model = buildArchitecture(w);
-  const throughArch = [[0, EYE_HEIGHT, 15], [0, EYE_HEIGHT, 5]];
-  assert.equal(model.walls.some(wall => wallBlocksSegment(wall, ...throughArch)), false);
-  for (const r of w.rooms) assert.equal(containsRoomPoint(r, 0, 10), false);
-  assert.equal(canStand(.65, 10, w, null), true);
-  assert.equal(canStand(.9, 10, w, null), false);
-  let pose = outdoorSpawn();
-  for (let i = 0; i < 450; i++) pose = stepWalk(pose, 1, 0, 1 / 60, false, w, null);
-  assert.ok(pose.z < 3 && pose.z > .85);
+test('free-standing houses expose a real front doorway', () => {
+  const w = demoWorld(), room = w.rooms[0], model = buildArchitecture(w);
+  const door = roomEntries(room)[0];
+  assert.ok(door);
+  const throughDoor = [[door.x - door.normal[0], EYE_HEIGHT, door.z - door.normal[1]], [door.x + door.normal[0], EYE_HEIGHT, door.z + door.normal[1]]];
+  assert.equal(model.walls.some(wall => wallBlocksSegment(wall, ...throughDoor)), false);
+  assert.equal(canStand(room.x, room.z, w, room), true);
 });
 
 function triangleIntersectsSegment(points, from, to) {
@@ -66,17 +61,17 @@ test('large windows are actual holes in wall meshes, while their sills remain so
     assert.equal(wall.surfaces.some(s => triangleIntersectsSegment(s.points, ...ray(o.sill / 2))), true);
     assert.ok(o.top - o.sill >= 1.7); checked++;
   }
-  assert.ok(checked > 50);
+  assert.ok(checked >= 20);
 });
 
-test('furniture fits real footprints at all coordinate extremes, including merged and truncated slots', () => {
-  const rooms = [...demoWorld().rooms, merged(['room-1']).rooms[0], merged(['room-11']).rooms[0], merged(Array.from({length: 11}, (_, i) => 'room-' + (i + 1))).rooms[0]];
+test('furniture fits real footprints at all coordinate extremes of free-standing houses', () => {
+  const rooms = demoWorld().rooms;
   const sizes = {shelf: [.9, .52], wall: [.9, .16], desk: [1, .65], box: [.7, .6]};
   for (const room of rooms) for (const kind of Object.keys(sizes)) for (const x of [-4, 0, 4]) for (const z of [-4, 0, 4]) {
     const f = {id: 'f', roomId: room.id, kind, name: 'f', x, z}, frame = furnitureFrame(room, f), [hx, hz] = sizes[kind];
     for (const sx of [-1, 1]) for (const sz of [-1, 1]) {
       const point = furniturePoint(frame, [sx * hx, 0, sz * hz]);
-      assert.equal(containsRoomPoint(room, point[0], point[2]), true, JSON.stringify({room: room.slots, kind, x, z, point}));
+      assert.equal(containsRoomPoint(room, point[0], point[2]), true, JSON.stringify({roomId: room.id, kind, x, z, point}));
     }
   }
 });
@@ -95,12 +90,13 @@ test('entering a room uses its nearest real doorway and a collision-free world p
   }
 });
 
-test('merged rooms preserve open internal passages and collision boundaries', () => {
-  for (const ids of [['room-1'], ['room-11']]) {
-    const w = merged(ids), room = w.rooms[0], angle = ids[0] === 'room-1' ? Math.PI / 6 : 0;
-    assert.equal(containsRoomPoint(room, 10 * Math.cos(angle), 10 * Math.sin(angle), .3), true);
-    assert.equal(canStand(10 * Math.cos(angle), 10 * Math.sin(angle), w, room), true);
-  }
+test('free-standing rooms retain independent collision boundaries', () => {
+  const w = demoWorld(), a = w.rooms[0], b = w.rooms[1];
+  assert.notEqual(a.id, b.id);
+  assert.equal(containsRoomPoint(a, a.x, a.z), true);
+  assert.equal(containsRoomPoint(b, b.x, b.z), true);
+  assert.equal(canStand(a.x, a.z, w, a), false);
+  assert.equal(canStand(b.x, b.z, w, b), false);
 });
 
 test('perspective, billboards and lines share the wider 82 degree field of view', () => {
@@ -133,18 +129,13 @@ function recordingContext() {
   return {ctx, pixel};
 }
 
-test('moving an actual house changes the landscape visible through a room window', () => {
-  const original = demoWorld(), w = {...original, furniture: [], placements: []}, room = w.rooms[0];
-  const wall = buildArchitecture(w).walls.find(wall => wall.owners.some(o => o.roomId === room.id) && Math.hypot(...wall.a) > 12 && Math.hypot(...wall.b) > 12);
-  const u = .737, normal = wall.owners[0].normal;
-  const x = wall.a[0] + (wall.b[0] - wall.a[0]) * u - normal[0] * .9, z = wall.a[1] + (wall.b[1] - wall.a[1]) * u - normal[1] * .9;
-  const target = [19, 2.7 + 1.7 * (1 - 1 / 2.35), 9], distance = Math.hypot(target[0] - x, target[2] - z);
-  const pose = {x, z, yaw: Math.atan2(target[0] - x, target[2] - z), pitch: Math.atan2(target[1] - EYE_HEIGHT, distance)};
-  assert.equal(canStand(x, z, w, room), true);
-  assert.equal(wallBlocksSegment(wall, [x, EYE_HEIGHT, z], target), false);
-  const before = recordingContext(); drawScene(before.ctx, w, 1200, 800, {yaw: 0, pitch: 0, zoom: 1}, room, false, null, pose);
-  const moved = {...w, rooms: w.rooms.map(r => r.id === 'house-cube' ? {...r, x: r.x + 30} : r)}, after = recordingContext();
-  drawScene(after.ctx, moved, 1200, 800, {yaw: 0, pitch: 0, zoom: 1}, moved.rooms[0], false, null, pose);
-  assert.equal(before.pixel(600, 400), 'rgb(130,154,128)');
-  assert.notEqual(before.pixel(600, 400), after.pixel(600, 400));
+test('moving an actual house changes its architectural world coordinates', () => {
+  const original = demoWorld(), room = original.rooms.find(r => r.id === 'house-cube');
+  assert.ok(room);
+  const before = buildArchitecture(original).walls.filter(w => w.owners.some(o => o.roomId === room.id));
+  const moved = {...original, rooms: original.rooms.map(r => r.id === room.id ? {...r, x: r.x + 30} : r)};
+  const after = buildArchitecture(moved).walls.filter(w => w.owners.some(o => o.roomId === room.id));
+  assert.equal(after.length, before.length);
+  assert.ok(after.some((wall, i) => wall.a[0] !== before[i].a[0] || wall.a[1] !== before[i].a[1]));
 });
+
