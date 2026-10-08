@@ -68,7 +68,7 @@ export function drawScene(ctx:CanvasRenderingContext2D,w:World,width:number,heig
   for(const room of w.rooms){
    if(room.kind==='house'){
     if(!selected){hit([room.x,2,room.z],room.id,'room',2.8);labels.push({text:room.name,p:[room.x,0,room.z+3],active:room.id===highlight});}
-   }else for(const slot of (room.slots?.length ? room.slots : Array.from({length:12},(_,i)=>i))){
+   }else for(const slot of Array.from({length:12},(_,i)=>i)){
     const mid=(slot+.5)*Math.PI/6;
     if(!selected){hit(polar(11,mid,2.6),room.id,'room',2.05);
      if(!walk){const q=project(polar(13.8,mid,.1));shapes.push({depth:q.depth,draw:()=>{ctx.fillStyle='#68765e';ctx.font='10px ui-monospace,monospace';ctx.textAlign='center';ctx.fillText(String(slot+1).padStart(2,'0'),q.x,q.y);}});}
