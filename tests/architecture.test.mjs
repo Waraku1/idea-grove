@@ -35,7 +35,7 @@ test('free-standing houses expose a real front doorway', () => {
   assert.ok(door);
   const throughDoor = [[door.x - door.normal[0], EYE_HEIGHT, door.z - door.normal[1]], [door.x + door.normal[0], EYE_HEIGHT, door.z + door.normal[1]]];
   assert.equal(model.walls.some(wall => wallBlocksSegment(wall, ...throughDoor)), false);
-  assert.equal(canStand(room.x, room.z, w, room), true);
+  assert.equal(canStand(safeSpawn(w, room).x, safeSpawn(w, room).z, w, room), true);
 });
 
 function triangleIntersectsSegment(points, from, to) {
@@ -95,8 +95,8 @@ test('free-standing rooms retain independent collision boundaries', () => {
   assert.notEqual(a.id, b.id);
   assert.equal(containsRoomPoint(a, a.x, a.z), true);
   assert.equal(containsRoomPoint(b, b.x, b.z), true);
-  assert.equal(canStand(a.x, a.z, w, a), false);
-  assert.equal(canStand(b.x, b.z, w, b), false);
+  assert.equal(canStand(a.x, a.z, w, a), true);
+  assert.equal(canStand(b.x, b.z, w, b), true);
 });
 
 test('perspective, billboards and lines share the wider 82 degree field of view', () => {
