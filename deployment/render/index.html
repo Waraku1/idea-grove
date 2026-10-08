@@ -11,7 +11,7 @@
 <body>
   <div id="root" style="min-height:100vh">
     <div id="bootstrap-status" style="box-sizing:border-box;max-width:720px;margin:10vh auto;padding:28px;font:16px/1.5 system-ui,sans-serif;color:#3c4935;background:rgba(255,255,255,.92);border:1px solid rgba(60,73,53,.18);border-radius:18px;box-shadow:0 12px 40px rgba(40,50,35,.12)">
-      Loading Idea Grove…
+      Idea Grove bootstrap v3 — starting…
     </div>
   </div>
   <noscript>
@@ -19,6 +19,26 @@
       Idea Grove requires JavaScript to be enabled.
     </div>
   </noscript>
-  <script defer src="/assets/recovered-entry.js"></script>
+  <script>
+    (function () {
+      var status = document.getElementById("bootstrap-status");
+      function fail(message) {
+        if (status) {
+          status.textContent = "Idea Grove bootstrap failed: " + message;
+          status.style.color = "#8b2f2f";
+        }
+      }
+      try {
+        if (status) status.textContent = "Idea Grove bootstrap v3 — loading application…";
+        var script = document.createElement("script");
+        script.src = "/assets/recovered-entry.js";
+        script.defer = true;
+        script.onerror = function () { fail("could not load /assets/recovered-entry.js"); };
+        document.head.appendChild(script);
+      } catch (error) {
+        fail(error && error.message ? error.message : String(error));
+      }
+    })();
+  </script>
 </body>
 </html>
