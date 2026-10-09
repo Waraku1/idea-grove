@@ -67,4 +67,6 @@ async function start() {
     showFailure(error);
   }
 
+}
+
 start();
