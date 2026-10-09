@@ -1,4 +1,5 @@
 import test, {after} from 'node:test';
+import {execFileSync} from 'node:child_process';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {mkdtemp, mkdir, writeFile, rm, symlink} from 'node:fs/promises';
@@ -33,6 +34,12 @@ const req = (path, init={}) => new Request(origin+path, init);
 const write = (revision, commands, headers={}) => req('/api/world', {method:'POST',headers:{'Content-Type':'application/json',Origin:origin,...headers},body:JSON.stringify({revision,commands})});
 const thought = {id:'private',kind:'memo',title:'My thought',content:'first account private content',tags:[],archived:false,createdAt:'2026-10-06T00:00:00Z',updatedAt:'2026-10-06T00:00:00Z'};
 
+test('recovered Render bootstrap script parses and invokes its startup function',()=>{
+ const source=readFileSync('deployment/render/public/assets/recovered-entry.js','utf8');
+ assert.match(source, /\\bstart\\(\\);\\s*$/);
+ assert.doesNotMatch(source, /\\}\\)\\(\\);\\s*$/);
+ execFileSync(process.execPath, ['--check', 'deployment/render/public/assets/recovered-entry.js']);
+});
 test('Render configuration accepts only an actual free-host origin and a private TLS Neon connection',()=>{
  assert.equal(validateRenderOrigin(origin), origin);
  for(const url of ['http://idea-grove.onrender.com','https://other.example','https://idea-grove.onrender.com/path','https://user:pass@idea-grove.onrender.com','https://idea-grove.onrender.com:8443'])assert.throws(()=>validateRenderOrigin(url));
