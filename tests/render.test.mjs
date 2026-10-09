@@ -18,6 +18,7 @@ const root = await mkdtemp(join(tmpdir(), 'grove-render-'));
 await mkdir(join(root, 'assets'));
 await writeFile(join(root, 'index.html'), '<!doctype html><html lang="en">Idea Grove</html>');
 await writeFile(join(root, 'assets/app.js'), '/* public application */');
+await writeFile(join(root, 'assets/recovered-entry.js'), '/* bootstrap entry */');
 await writeFile(join(root, 'assets/app.js.br'), brotliCompressSync(Buffer.from('/* public application */')));
 await writeFile(join(root, 'secret.txt'), 'not a public asset');
 await symlink(join(root, 'secret.txt'), join(root, 'assets/private.js'));
