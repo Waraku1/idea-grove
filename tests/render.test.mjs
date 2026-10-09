@@ -36,8 +36,8 @@ const thought = {id:'private',kind:'memo',title:'My thought',content:'first acco
 
 test('recovered Render bootstrap script parses and invokes its startup function',()=>{
  const source=readFileSync('deployment/render/public/assets/recovered-entry.js','utf8');
- assert.match(source, /\\bstart\\(\\);\\s*$/);
- assert.doesNotMatch(source, /\\}\\)\\(\\);\\s*$/);
+ assert.match(source, /\bstart\(\);\s*$/);
+ assert.doesNotMatch(source, /\}\)\(\);\s*$/);
  execFileSync(process.execPath, ['--check', 'deployment/render/public/assets/recovered-entry.js']);
 });
 test('Render configuration accepts only an actual free-host origin and a private TLS Neon connection',()=>{
