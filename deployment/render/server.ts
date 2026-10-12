@@ -34,7 +34,7 @@ async function asset(request: Request, directory: string, relative: string, immu
     // remains compressed, while these two large modules are loaded by native dynamic
     // import() during the recovery bootstrap.
     let file = plain, encoding = '';
-    const runtimeModule = relative === 'assets/framework-D_rUT4EX.js' || relative === 'assets/grove-BWXu0UId.js';
+    const runtimeModule = relative === 'assets/framework-D_rUT4EX.js' || /^assets\/grove-[^/]+\.js$/.test(relative);
     if (!runtimeModule) {
       const accept = request.headers.get('accept-encoding') ?? '';
       for (const [name, suffix] of [['br', '.br'], ['gzip', '.gz']]) if (new RegExp('(?:^|,)\\s*' + name + '(?:\\s*,|\\s*$)').test(accept)) {
@@ -44,7 +44,7 @@ async function asset(request: Request, directory: string, relative: string, immu
         } catch {}
       }
     }
-    const cacheImmutable = immutable && relative !== 'assets/recovered-entry.js';
+    const cacheImmutable = immutable && !/^assets\/(?:recovered-entry(?:-[^/]+)?|grove-[^/]+)\.js$/.test(relative);
     const data = await readFile(file), headers = new Headers({'Content-Type':types[extname(relative)],'Cache-Control':cacheImmutable ? 'public, max-age=31536000, immutable' : 'private, no-store','Vary':'Accept-Encoding','Content-Length':String(data.length)});
     if (encoding) headers.set('Content-Encoding', encoding);
     return new Response(request.method === 'HEAD' ? null : new Uint8Array(data).buffer, {headers});
