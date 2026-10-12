@@ -42,7 +42,7 @@ async function start() {
     }
 
     setStatus("Loading your grove…");
-    const groveModule = await withTimeout(import("./grove-BWXu0UId.js"), "Loading the Grove application");
+    const groveModule = await withTimeout(import("./grove-BWXu0UId-r2.js"), "Loading the Grove application");
     const Grove = groveModule.default;
     if (!Grove) throw new Error("The recovered Grove module did not provide a default export.");
 
