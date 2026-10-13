@@ -1,5 +1,5 @@
 import {z} from 'zod';
-import {emptyWorld, applyCommands, commandSchema, eventLabel, type V2Command} from './domain-v2.ts';
+import {emptyWorld, applyCommands, commandSchema, eventLabel, validateWorld, type V2Command} from './domain-v2.ts';
 import {currentWeather, searchLocations} from './weather-service.ts';
 import type {GroveDatabase} from './database.ts';
 
@@ -12,7 +12,7 @@ export async function getWorld(owner: string | null, db: GroveDatabase | undefin
   if (!db) return unavailable();
   try {
     const row = await db.prepare('SELECT data_json, revision, updated_at FROM worlds WHERE owner_id = ?').bind(owner).first<{data_json: string; revision: number; updated_at: string}>();
-    return reply({world: row ? JSON.parse(row.data_json) : emptyWorld(), revision: row?.revision ?? 0, updatedAt: row?.updated_at ?? null});
+    return reply({world: validateWorld(row ? JSON.parse(row.data_json) : emptyWorld()), revision: row?.revision ?? 0, updatedAt: row?.updated_at ?? null});
   } catch {return unavailable();}
 }
 
