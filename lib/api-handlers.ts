@@ -1,5 +1,5 @@
 import {z} from 'zod';
-import {emptyWorld, applyCommands, commandSchema, eventLabel, validateWorld, type V2Command} from './domain-v2.ts';
+import {emptyWorld, applyCommands, commandSchema, eventLabel, type V2Command} from './domain-v2.ts';
 import {currentWeather, searchLocations} from './weather-service.ts';
 import type {GroveDatabase} from './database.ts';
 
