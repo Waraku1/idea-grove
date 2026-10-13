@@ -1,5 +1,5 @@
 import {z} from 'zod';
-import {emptyWorld, applyCommands, commandSchema, eventLabel, type Command} from './domain.ts';
+import {emptyWorld, applyCommands, commandSchema, eventLabel, validateWorld, type V2Command} from './domain-v2.ts';
 import {currentWeather, searchLocations} from './weather-service.ts';
 import type {GroveDatabase} from './database.ts';
 
@@ -31,7 +31,7 @@ export async function postWorld(request: Request, owner: string | null, db: Grov
   if ((row?.revision ?? 0) !== input.revision) return reply({error: 'Your world changed in another view. Reload the latest version and save your draft again.'}, 409);
   const now = new Date().toISOString();
   let world;
-  try {world = applyCommands(row ? JSON.parse(row.data_json) : emptyWorld(), input.commands, now);} catch (e) {return reply({error: e instanceof Error ? e.message : 'Could not save your changes.'}, 400);}
+  try {world = applyCommands(row ? JSON.parse(row.data_json) : emptyWorld(), input.commands as V2Command[], now);} catch (e) {return reply({error: e instanceof Error ? e.message : 'Could not save your changes.'}, 400);}
   const data = JSON.stringify(world);
   if (new TextEncoder().encode(data).length > 1500000) return reply({error: 'Your grove reached its 1.5 MB storage limit. Export a backup and organize your saved thoughts.'}, 413);
   const revision = input.revision + 1, events = JSON.stringify(input.commands), label = eventLabel(input.commands);
@@ -61,7 +61,7 @@ export async function getHistory(request: Request, owner: string | null, db: Gro
     if (!Number.isSafeInteger(revision) || revision < 0 || !param.trim()) return reply({error: 'Invalid history revision.'}, 400);
     const result = await db.prepare('SELECT revision, event_json, occurred_at FROM world_events WHERE owner_id = ? AND revision <= ? ORDER BY revision').bind(owner, revision).all<{revision: number; event_json: string; occurred_at: string}>();
     let w = emptyWorld();
-    for (const e of result.results) w = applyCommands(w, JSON.parse(e.event_json) as Command[], e.occurred_at);
+    for (const e of result.results) w = applyCommands(w, JSON.parse(e.event_json) as V2Command[], e.occurred_at);
     if (revision > 0 && result.results.at(-1)?.revision !== revision) return reply({error: 'This moment was not found.'}, 404);
     return reply({world: w, revision});
   } catch {return unavailable();}
