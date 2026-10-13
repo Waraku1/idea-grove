@@ -26,7 +26,7 @@ const commandSchema = z.discriminatedUnion('type',[
  z.object({type:z.literal('room.move'),id,x:number.min(-80).max(80),z:number.min(-80).max(80)}),z.object({type:z.literal('placement.move'),id,position:movePosition}),
  z.object({type:z.literal('part.put'),part:partSchema}),z.object({type:z.literal('part.delete'),id}),z.object({type:z.literal('part.move'),id,x:number.min(-80).max(80),z:number.min(-80).max(80),y:number.min(0).max(18).optional(),rotation:number.min(-3600).max(3600).optional()}),
  z.object({type:z.literal('book.combine'),memoIds:z.array(id).min(1).max(300),bookId:id,title:z.string().max(200)}),z.object({type:z.literal('book.insert'),bookId:id,memoIds:z.array(id).min(1).max(300),index:z.number().int().min(0).max(300)}),z.object({type:z.literal('book.split'),bookId:id,memoIds:z.array(id).min(1).max(300)}),
- z.object({type:z.literal('world.reset'),requestId:z.literal('fresh-garden-2026-10-07').optional()}),z.object({type:z.literal('world.rename'),name:z.string().trim().min(1).max(80)}),z.object({type:z.literal('world.restore'),world:worldSchema})
+ z.object({type:z.literal('world.reset'),requestId:z.literal('fresh-garden-2026-10-07').optional()}),z.object({type:z.literal('world.rename'),name:z.string().trim().min(1).max(80)}),z.object({type:z.literal('world.restore'),world:z.unknown()})
 ]);
 export type V2World = z.infer<typeof worldSchema>;
 export type V2Command = z.infer<typeof commandSchema>;
